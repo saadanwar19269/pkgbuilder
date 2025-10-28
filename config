@@ -1,0 +1,31 @@
+# pkgbuilder System Configuration
+# Override these in ~/.config/pkgbuilder/config
+
+# Base directories
+PKGBUILDER_DIR="$HOME/.local/pkgbuilder"
+CACHE_DIR="$PKGBUILDER_DIR/cache"
+DB_DIR="$PKGBUILDER_DIR/db"
+
+# Build settings
+BUILD_DIR="$CACHE_DIR/builds"
+SOURCE_DIR="$CACHE_DIR/sources"
+PKG_DIR="$CACHE_DIR/packages"
+
+# System integration
+PREFIX="$HOME/.local"
+PATH_BIN="$PREFIX/bin"
+PATH_LIB="$PREFIX/lib"
+PATH_INCLUDE="$PREFIX/include"
+
+# Build environment
+USE_NAMESPACES=1
+PARALLEL_BUILDS=$(nproc)
+KEEP_BUILDDIR=0
+STRIP_BINARIES=1
+
+# Security
+VERIFY_SIGNATURES=1
+CHECKSUMS=sha256
+
+# Network
+CURL_OPTS="--connect-timeout 30 --retry 3"
