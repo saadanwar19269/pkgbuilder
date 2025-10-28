@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>pkgbuilder Web UI</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { background: #2c3e50; color: white; padding: 2rem 0; margin-bottom: 2rem; }
+        .package { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; background: #f9f9f9; }
+        .package h3 { color: #2c3e50; margin-bottom: 0.5rem; }
+        .package .meta { color: #666; font-size: 0.9rem; }
+        .loading { text-align: center; padding: 2rem; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>pkgbuilder Packages</h1>
+            <p>Browse locally built packages</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div id="packages">
+            <div class="loading">Loading packages...</div>
+        </div>
+    </div>
+
+    <script>
+        async function loadPackages() {
+            try {
+                const response = await fetch('/api/packages');
+                const packages = await response.json();
+                
+                const container = document.getElementById('packages');
+                
+                if (packages.length === 0) {
+                    container.innerHTML = '<div class="loading">No packages built yet</div>';
+                    return;
+                }
+                
+                container.innerHTML = packages.map(pkg => `
+                    <div class="package">
+                        <h3>${pkg.name}</h3>
+                        <div class="meta">
+                            Last built: ${new Date(pkg.last_built * 1000).toLocaleString()}
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                document.getElementById('packages').innerHTML = 
+                    '<div class="loading">Error loading packages</div>';
+            }
+        }
+        
+        loadPackages();
+    </script>
+</body>
+</html>
