@@ -18,3 +18,25 @@ git clone https://github.com/yourusername/pkgbuilder
 cd pkgbuilder
 
 ./install.sh
+
+# Usage
+
+**Install a package**
+
+pkgbuilder install example
+
+**Build without installing**
+
+pkgbuilder build example
+
+**List installed packages**
+
+pkgbuilder list
+
+**Remove a package**
+
+pkgbuilder remove example
+
+**Start web UI**
+
+pkgbuilder-webui
