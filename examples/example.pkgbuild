@@ -1,0 +1,28 @@
+pkgname="example"
+pkgver="1.0.0"
+pkgrel="1"
+pkgdesc="Example package for pkgbuilder"
+
+source=(
+    "https://github.com/example/example/archive/v$pkgver.tar.gz"
+)
+checksums=(
+    "sha256:abc123def456..."  # You'd use real checksums
+)
+
+depends=()
+makedepends=("gcc" "make")
+
+build() {
+    echo "Building example package..."
+    cat > example.sh << EOF
+#!/bin/bash
+echo "Hello from example package!"
+EOF
+    chmod +x example.sh
+}
+
+package() {
+    mkdir -p "$pkgdir/$PREFIX/bin"
+    cp example.sh "$pkgdir/$PREFIX/bin/example"
+}
