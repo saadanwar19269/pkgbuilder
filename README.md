@@ -40,3 +40,28 @@ pkgbuilder remove example
 **Start web UI**
 
 pkgbuilder-webui
+
+# Creating Packages
+
+Create a .pkgbuild file:
+
+
+pkgname="example"
+pkgver="1.0.0"
+source=("https://example.com/$pkgname-$pkgver.tar.gz")
+checksums=("sha256:...")
+depends=("zlib")
+
+build() {
+    ./configure --prefix="$pkgdir/$PREFIX"
+    make
+}
+
+package() {
+    make install
+}
+
+# Requirements
+
+bash, make, gcc, jq, sqlite3
+unshare (for sandboxing)
