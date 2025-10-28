@@ -1,0 +1,99 @@
+#!/bin/bash
+set -euo pipefail
+
+# Determine installation directory
+if [ -n "${PKGBUILDER_DIR:-}" ]; then
+    SCRIPT_DIR="$PKGBUILDER_DIR"
+else
+    # Try to find installation
+    if [ -L "$0" ]; then
+        SCRIPT_DIR="$(dirname "$(readlink -f "$0")")/../share/pkgbuilder"
+    else
+        SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../share/pkgbuilder" && pwd)"
+    fi
+fi
+
+# Load system config first
+if [ -f "$SCRIPT_DIR/config" ]; then
+    source "$SCRIPT_DIR/config"
+fi
+
+# Load user config (overrides system config)
+USER_CONFIG="$HOME/.config/pkgbuilder/config"
+if [ -f "$USER_CONFIG" ]; then
+    source "$USER_CONFIG"
+fi
+
+# Set defaults
+: "${PKGBUILDER_DIR:=$HOME/.local/pkgbuilder}"
+: "${PREFIX:=$HOME/.local}"
+: "${PARALLEL_BUILDS:=$(nproc)}"
+: "${USE_NAMESPACES:=1}"
+
+# Directory setup
+CACHE_DIR="$PKGBUILDER_DIR/cache"
+BUILD_DIR="$CACHE_DIR/builds"
+SOURCE_DIR="$CACHE_DIR/sources"
+PKG_DIR="$CACHE_DIR/packages"
+DB_DIR="$PKGBUILDER_DIR/db"
+
+# Create directories
+mkdir -p "$BUILD_DIR" "$SOURCE_DIR" "$PKG_DIR" "$DB_DIR"
+
+# Source functions
+if [ -f "$SCRIPT_DIR/scripts/functions.sh" ]; then
+    source "$SCRIPT_DIR/scripts/functions.sh"
+else
+    echo "Error: Cannot find functions.sh" >&2
+    exit 1
+fi
+
+# Initialize database
+db_init
+
+case "${1:-}" in
+    install)
+        shift
+        pkg_install "$@"
+        ;;
+    build)
+        shift
+        pkg_build "$@"
+        ;;
+    remove)
+        shift
+        pkg_remove "$@"
+        ;;
+    list)
+        pkg_list
+        ;;
+    update)
+        pkg_update
+        ;;
+    --version)
+        echo "pkgbuilder 1.0.0"
+        ;;
+    *)
+        cat << EOF
+pkgbuilder - Local AUR-like Package Builder
+
+Usage: pkgbuilder [COMMAND] [OPTIONS]
+
+Commands:
+    install <package|pkgbuild>   Install a package
+    build <package|pkgbuild>     Build without installing
+    remove <package>             Remove an installed package
+    list                         List installed packages
+    update                       Update package database
+    --version                    Show version
+
+Examples:
+    pkgbuilder install examples/example.pkgbuild
+    pkgbuilder build mypackage.pkgbuild
+    pkgbuilder remove example
+
+Configuration: $HOME/.config/pkgbuilder/config
+EOF
+        exit 1
+        ;;
+esac
